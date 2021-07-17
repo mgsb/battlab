@@ -8,6 +8,7 @@ from battlab import BattLabOne
 def main():
     argp = argparse.ArgumentParser(description="Measure current with BattLab-One")
     argp.add_argument("-c", "--current-range", default="high",
+                      choices=["high", "low"],
                       help="use high or low current range")
     argp.add_argument("-d", "--duration", default=1, type=int,
                       help="duration of measurement (seconds)")
@@ -41,13 +42,14 @@ def main():
                          "supported\n".format(args.voltage))
         sys.exit(3)
 
-    bl1.current_range = bl1.CurrentRange.LOW if args.current_range == "low" \
-        else bl1.CurrentRange.HIGH
+    bl1.current_range = bl1.CurrentRange[args.current_range.upper()]
     bl1.voltage = args.voltage
 
     sleep(args.wait)
 
     data = bl1.collect(args.duration)
+
+    bl1.voltage = 0
 
     stats = "max: {:.2f}, min: {:.2f}, avg: {:.2f}".format(max(data), min(data),
                                                            sum(data) / len(data))
