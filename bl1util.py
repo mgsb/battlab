@@ -1,3 +1,5 @@
+"""Command-line utility for making measurement using BattLab-One"""
+
 import sys
 import argparse
 from time import sleep
@@ -14,6 +16,8 @@ def main():
                       help="duration of measurement (seconds)")
     argp.add_argument("-g", "--graph", action="store_true",
                       help="graph (plot) the sample data")
+    argp.add_argument("--no-reset", default=False, action="store_true",
+                      help="do not reset device")
     argp.add_argument("-o", "--output", default=None,
                       help="output file to store sample data in")
     argp.add_argument("-p", "--port", default=None,
@@ -41,6 +45,9 @@ def main():
         sys.stderr.write("requested voltage ({}) not "
                          "supported\n".format(args.voltage))
         sys.exit(3)
+
+    if not args.no_reset:
+        bl1.reset()
 
     bl1.current_range = bl1.CurrentRange[args.current_range.upper()]
     bl1.voltage = args.voltage
