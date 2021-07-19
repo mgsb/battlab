@@ -54,7 +54,7 @@ def main():
 
     sleep(args.wait)
 
-    data = bl1.collect(args.duration)
+    data = bl1.sample(args.duration)
 
     bl1.voltage = 0
 

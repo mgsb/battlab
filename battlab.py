@@ -38,22 +38,26 @@ class BattLabOne:
 
         return names if len(names) else None
 
-    def __init__(self, port):
+    def __init__(self, port, voltage=None, current_range=None, reset=False):
         """Construct object using specified serial port
 
         :param port: name of serial (com) port
         """
-        try:
-            self.serial = Serial(port, 115200, timeout=0.5)
-        except SerialException as ser_exc:
-            raise ValueError("could not open port: {}".format(port)) from ser_exc
+        self.serial = Serial(port, 115200, timeout=0.5)
 
-        self._sense = self.CurrentRange.HIGH
-        self._voltage = 0.0
-        self.voltages = [1.2, 1.5, 2.4, 3.0, 3.2, 3.6, 3.7, 4.2, 4.5]
         self.version = self._run_cmd("p", 1)[0]
         if self.version < 1003:
             raise ValueError("firmware version too old")
+
+        if reset:
+            self.reset()
+
+        self.voltages = [1.2, 1.5, 2.4, 3.0, 3.2, 3.6, 3.7, 4.2, 4.5]
+        if current_range:
+            self.current_range = current_range
+
+        if voltage:
+            self.voltage = voltage
 
         self._calib_vals()
 
@@ -89,12 +93,13 @@ class BattLabOne:
         i = 0
         for v in self.voltages:
             self.cal_offset[v] = VSettings(cal=results[i] / 1000.0,
-                                           offset=(results[i + 9] / 100000.0) + ADJ[i],
+                                           offset=(results[i + 9] / 100000.0)
+                                           + ADJ[i],
                                            cmd=CMD[i])
             i = i + 1
 
-    def collect(self, dur):
-        """Collect samples of current readings from device
+    def sample(self, dur):
+        """Sample of current readings from device
 
         :param dur: duration (in seconds) of collection
         :returns: list of float sample values in mA
@@ -102,7 +107,7 @@ class BattLabOne:
         # 115200 bps is about 1152 Bps or 576 samples/sec
         results = self._run_cmd("z", int(dur * 576))
         scaled = []
-        if self._sense == self.CurrentRange.HIGH:
+        if self._crange == self.CurrentRange.HIGH:
             sense_scale = self.cal_offset[self._voltage].cal
             offset = 0
         else:
@@ -122,7 +127,7 @@ class BattLabOne:
     @property
     def current_range(self):
         """Get current current range"""
-        return self._sense
+        return self._crange
 
     @current_range.setter
     def current_range(self, crange):
@@ -137,7 +142,7 @@ class BattLabOne:
         else:
             raise ValueError("invalid current range specified")
 
-        self._sense = crange
+        self._crange = crange
         sleep(0.1)
 
     @property
@@ -178,7 +183,7 @@ def main():
 
     bl1.voltage = 3.0
 
-    data = bl1.collect(1.5)
+    data = bl1.sample(1.5)
 
     bl1.voltage = 0
 
