@@ -52,14 +52,14 @@ class BattLabOne:
         if reset:
             self.reset()
 
+        self._calib_vals()
         self.voltages = [1.2, 1.5, 2.4, 3.0, 3.2, 3.6, 3.7, 4.2, 4.5]
+
         if current_range:
             self.current_range = current_range
 
         if voltage:
             self.voltage = voltage
-
-        self._calib_vals()
 
     def _run_cmd(self, cmd, num_results=0):
         results = []
@@ -99,7 +99,7 @@ class BattLabOne:
             i = i + 1
 
     def sample(self, dur):
-        """Sample of current readings from device
+        """Sample current readings from device
 
         :param dur: duration (in seconds) of collection
         :returns: list of float sample values in mA
