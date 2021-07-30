@@ -54,17 +54,20 @@ class BattLabOne:
 
     VSettings = namedtuple("VSettings", "cal, offset, cmd")
 
-    def __init__(self, port, voltage=None, current_range=None, reset=False):
+    def __init__(self, port=None, voltage=None, current_range=None, reset=False):
         """
         Create a BattLabOne object to manage device using specified serial port
 
         :param port: name of serial (com) port
         """
+        if not port:
+            port = self.find_ports()[0]
+
         self.serial = Serial(port, 115200, timeout=0.5)
 
         self.version = self._run_cmd(self.FWCmd.VERSION, 1)[0]
         if self.version < 1003:
-            raise ValueError("firmware version too old")
+            raise ValueError("firmware version too old: {}".format(self.version))
 
         if reset:
             self.reset()
@@ -85,6 +88,7 @@ class BattLabOne:
         try:
             # terminate any remaining output from firmware
             self.serial.write(self.FWCmd.CTRLC.value)
+            self.serial.flushInput()
 
             self.serial.write(cmd.value)
             for _ in range(num_results):
