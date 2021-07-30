@@ -41,7 +41,7 @@ def main():
 
     bl1 = BattLabOne(ports[0])
 
-    if args.voltage not in bl1.voltages:
+    if args.voltage not in bl1.VOLTAGES:
         sys.stderr.write("requested voltage ({}) not "
                          "supported\n".format(args.voltage))
         sys.exit(3)
@@ -54,7 +54,7 @@ def main():
 
     sleep(args.wait)
 
-    data = bl1.sample(args.duration)
+    data = bl1.sample_block(args.duration)
 
     bl1.voltage = 0
 
