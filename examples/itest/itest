@@ -12,5 +12,5 @@ CR=$2
 for v in 1.2 1.5 2.4 3.0 3.2 3.6 3.7 4.2 4.5
 do
     echo 6 k $v $R / 1000 \* p | dc
-    python3 bl1util.py -w 2 -d 2 -v $v -c $CR
+    python3 -m battlab -w 2 -d 2 -v $v -c $CR
 done
