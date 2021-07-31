@@ -1,12 +1,31 @@
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import SELECT_MODE_SINGLE
 
+from random import random
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 from battlab import BattLabOne
+
+
+def draw_figure(canvas, figure, loc=(0, 0)):
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+    figure_canvas_agg.draw()
+    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    return figure_canvas_agg
 
 def main():
     sg.theme('Default 1')
 
     bl1 = BattLabOne()
+
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 1)
+    x = [i for i in range(100)]
+    line, = ax.plot([], [])
+    _, _, fw, fh = fig.bbox.bounds # (0, 0, 100, 75) #
 
     layout = [
         [sg.Text("Voltage (V): "), sg.Listbox(values=bl1.VOLTAGES,
@@ -21,9 +40,21 @@ def main():
         [sg.HorizontalSeparator(color="#000000")],
         [sg.Text("Current (mA): "), sg.Text(size=(10, 1), key="cur_sample")],
         [sg.Text("Statistics: "), sg.Text(size=(40, 1), key="stats")],
+        [sg.Canvas(size=(fw, fh), key="canvas")],
     ]
 
-    window = sg.Window("BattLab-One", layout, finalize=True, font=("Arial", 12))
+    window = sg.Window("BattLab-One", layout, finalize=True,
+                       force_toplevel=True, font=("Arial", 12))
+
+    fig_photo = draw_figure(window["canvas"].TKCanvas, fig)
+
+    def animate(i):
+        y = [random() for _ in range(100)]
+        line.set_xdata(x)
+        line.set_ydata(y)
+        return line,
+
+    ani = animation.FuncAnimation(fig, animate, interval=20, blit=True)
 
     samples = None
     timeout = 100
