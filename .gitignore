@@ -2,3 +2,4 @@ __pycache__/
 .hacks/
 battlab.egg-info/
 dist/
+build/
