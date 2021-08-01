@@ -8,6 +8,8 @@ The `battlab` module provides a Python 3 class for interacting with a [BattLab-O
 * Usable from CLI and GUI applications
 * Cross-platform
 
+The battery modeling feature of the original BattLab-One application is not implemented here. This module is solely for data acquisition.
+
 Use `help(BattLabOne)` for docs.
 
 A command-line utility is provided in `bl1cli.py`. Invoke using `python3 -m battlab` or `bl1cli` after installing via `setup.py` or `pip3 install`.
@@ -71,3 +73,8 @@ optional arguments:
 See `examples/gui` for an example that uses [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest) and [matplotlib](https://matplotlib.org) for a simple GUI application including plotting.
 
 ![BattLab-One GUI Example](bl1gui.png)
+
+## TODO
+
+* Add support for triggered mode
+* Add support for setting averaging
