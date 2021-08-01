@@ -1,5 +1,8 @@
 """Command-line utility for making measurement using BattLab-One"""
 
+__copyright__ = "Copyright (c) 2021 Mark Grosen <mark@grosen.org>"
+__license__ = "SPDX-License-Identifier: MIT"
+
 import sys
 import argparse
 from time import sleep

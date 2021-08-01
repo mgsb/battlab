@@ -1,3 +1,5 @@
+"""GUI application for BattLab-One using PySimpleGUI"""
+
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import SELECT_MODE_SINGLE
 
@@ -25,17 +27,9 @@ class App:
         self.data = [0] * self.block_size
 
         self.fig, self.axes = plt.subplots()
-        # self.axes.set_xlim(0, 100)
-        # self.axes.set_ylim(0, 2.5)
         self.x = [i for i in range(self.block_size)]
-        # self.axes.autoscale(enable=True, axis="y")
-        # plt.autoscale(True)
         self.line, = self.axes.plot([], [])
         _, _, fw, fh = self.fig.bbox.bounds
-
-        # v_layout = [sg.Text("Voltage (V): ")]
-        # for v in self.bl1.VOLTAGES:
-        #     v_layout.append(sg.Radio(text=str(v), group_id="voltages", key="voltage_{}".format(v)))
 
         self.layout = [
             [sg.Text("Voltage (V): "), sg.Listbox(values=self.bl1.VOLTAGES,
@@ -61,7 +55,6 @@ class App:
         self.window["Stop"].update(disabled=False)
 
         self.axes.set_xlim(0, self.block_size)
-        # self.axes.set_ylim(0, 2.5)
         self.data = [0] * self.block_size
         plt.title("")
         plt.draw()
@@ -111,9 +104,6 @@ class App:
         def animate(*_):
             self.line.set_xdata(self.x)
             self.line.set_ydata(self.data[-self.block_size:])
-            # self.axes.autoscale(enable=True, axis="both")
-            # self.axes.relim()
-            # self.axes.autoscale_view()
             self.axes.set_ylim(min(self.data[-self.block_size:]),
                                max(self.data[-self.block_size:]) + 0.1)
             return self.line,
