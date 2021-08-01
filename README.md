@@ -1,14 +1,14 @@
 # README
 
-The battlab module provides a Python 3 class for interacting with a [BattLab-One instrument](https://bluebird-labs.com/).
+The `battlab` module provides a Python 3 class for interacting with a [BattLab-One instrument](https://bluebird-labs.com/).
 
-* Encapsulates serial protocol with device firmware
+* Encapsulates serial protocol with instrument firmware
 * Configure operating parameters
 * Read samples of current readings
 * Usable from CLI and GUI applications
 * Cross-platform
 
-Use help(BattLabOne) for docs.
+Use `help(BattLabOne)` for docs.
 
 A command-line utility is provided in `bl1cli.py`. Invoke using `python3 -m battlab` or `bl1cli` after installing via `setup.py` or `pip3 install`.
 
@@ -43,4 +43,31 @@ if __name__ == "__main__":
 
 ```
 
+CLI utility:
+
+``` bash
+linux% bl1cli --help
+usage: bl1cli [-h] [-c {high,low}] [-d DURATION] [-g] [--no-reset] [-o OUTPUT] [-p PORT]
+              [-v VOLTAGE] [-w WAIT]
+
+Measure current with BattLab-One
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c {high,low}, --current-range {high,low}
+                        use high or low current range
+  -d DURATION, --duration DURATION
+                        duration of measurement (seconds)
+  -g, --graph           graph (plot) the sample data
+  --no-reset            do not reset device
+  -o OUTPUT, --output OUTPUT
+                        output file to store sample data in
+  -p PORT, --port PORT  serial (com) port to use
+  -v VOLTAGE, --voltage VOLTAGE
+                        voltage for testing
+  -w WAIT, --wait WAIT  wait seconds before sampling
+```
+
 See `examples/gui` for an example that uses [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest) and [matplotlib](https://matplotlib.org) for a simple GUI application including plotting.
+
+![BattLab-One GUI Example](bl1gui.png)
