@@ -12,7 +12,7 @@ matplotlib.use('TkAgg')
 from battlab import BattLabOne
 
 
-def draw_figure(canvas, figure, loc=(0, 0)):
+def draw_figure(canvas, figure):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
@@ -24,7 +24,7 @@ class App:
         self.samples = None
         self.to_ms = 100
         self.block_size = 250
-        self.data = [0] * self.block_size
+        self.data = [0.0] * self.block_size
 
         self.fig, self.axes = plt.subplots()
         self.x = [i for i in range(self.block_size)]
@@ -40,7 +40,8 @@ class App:
             [sg.Text("Current Range:"),
              sg.Radio(text="High", group_id="crange", default=True, key="crange-high"),
              sg.Radio(text="Low", group_id="crange", key="crange-low")],
-            [sg.Button('Sample'), sg.Button("Stop", disabled=True)],
+            [sg.Button('Sample'), sg.Checkbox('Trigger', key="trigger", default=False),
+             sg.Button("Stop", disabled=True)],
             [sg.HorizontalSeparator(color="#000000")],
             [sg.Canvas(size=(fw, fh), key="canvas")],
         ]
@@ -55,14 +56,17 @@ class App:
         self.window["Stop"].update(disabled=False)
 
         self.axes.set_xlim(0, self.block_size)
-        self.data = [0] * self.block_size
+        self.data = [0.0] * self.block_size
         plt.title("")
         plt.draw()
 
         self.bl1.current_range = self.bl1.CurrentRange.HIGH \
             if values["crange-high"] else self.bl1.CurrentRange.LOW
         self.bl1.voltage = values["voltage"][0]
-        self.samples = self.bl1.sample()
+
+        self.trigger = values["trigger"]
+        print("sample: ", self.trigger)
+        self.samples = self.bl1.sample(self.trigger)
 
         self.animation.resume()
 
@@ -84,6 +88,14 @@ class App:
 
         self.animation.pause()
 
+        if self.trigger:
+            self.data.reverse()
+            num_zeros = len(self.data) - self.data.index(0.0)
+            print(min(self.data), max(self.data))
+            print(len(self.data), num_zeros)
+            self.data.reverse()
+            del self.data[0:num_zeros]
+
         self.axes.set_xlim(0, len(self.data))
         self.line.set_xdata([i for i in range(len(self.data))])
         self.axes.set_ylim(ymin=min(self.data), ymax=max(self.data))
@@ -95,7 +107,12 @@ class App:
 
     def timeout(self, *_):
         if self.samples:
-            self.data.append(next(self.samples))
+            try:
+                self.data.append(next(self.samples))
+            except StopIteration as exc:
+                self.samples = None
+                self.window["Stop"].click()
+
         return True
 
     def setup_plot(self, canvas):

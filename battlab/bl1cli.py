@@ -25,6 +25,8 @@ def main():
                       help="output file to store sample data in")
     argp.add_argument("-p", "--port", default=None,
                       help="serial (com) port to use")
+    argp.add_argument("-t", "--trigger", action="store_true",
+                      help="use triggered sampling")
     argp.add_argument("-v", "--voltage", default=1.2,
                       type=float, help="voltage for testing")
     argp.add_argument("-w", "--wait", default=0, type=float,
@@ -57,7 +59,7 @@ def main():
 
     sleep(args.wait)
 
-    data = bl1.sample_block(args.duration)
+    data = bl1.sample_block(args.duration, args.trigger)
 
     bl1.voltage = 0
 

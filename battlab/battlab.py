@@ -30,6 +30,7 @@ class BattLabOne:
         RESET = b'w'
         CALIB_VALS = b'j'
         SAMPLE = b'z'
+        SAMPLE_TRIGGER = b'x'
         VERSION = b'p'
 
         CTRLC = b'y'
@@ -54,7 +55,8 @@ class BattLabOne:
 
     VSettings = namedtuple("VSettings", "cal, offset, cmd")
 
-    def __init__(self, port=None, voltage=None, current_range=None, reset=False):
+    def __init__(self, port=None, voltage=None, current_range=CurrentRange.HIGH,
+                 reset=False):
         """
         Create a BattLabOne object to manage device using specified serial port
 
@@ -74,8 +76,7 @@ class BattLabOne:
 
         self._calib_vals()
 
-        if current_range:
-            self.current_range = current_range
+        self.current_range = current_range
 
         if voltage:
             self.voltage = voltage
@@ -120,14 +121,13 @@ class BattLabOne:
                                      self._CMD[i])
             self.cal_offset[v] = setting
 
-    def sample(self):
+    def sample(self, trigger=False):
         """
         Sample current readings from device as a generator
 
+        :param trigger: use triggered sampling method
         :yields: next current sample
         """
-        self._run_cmd(self.FWCmd.SAMPLE, 0)
-
         if self._crange == self.CurrentRange.HIGH:
             sense_scale = self.cal_offset[self._voltage].cal
             offset = 0
@@ -135,20 +135,31 @@ class BattLabOne:
             sense_scale = 99
             offset = self.cal_offset[self._voltage].offset
 
-        while True:
-            data = self.serial.read(2)
-            raw = (data[0] << 8) | data[1]
-            yield (0.0025 * raw) / sense_scale - offset
+        self._run_cmd(self.FWCmd.SAMPLE_TRIGGER if trigger else self.FWCmd.SAMPLE, 0)
+        ready = not trigger
+        sleep(0.25)
 
-    def sample_block(self, dur):
+        while True:
+            if not ready:
+                sleep(0.001)
+                ready = self.serial.in_waiting
+                yield 0.0
+            else:
+                data = self.serial.read(2)
+                if not data or (data[0] == 0xff and data[1] == 0xff):
+                    break
+                raw = (data[0] << 8) | data[1]
+                yield (0.0025 * raw) / sense_scale - offset
+
+    def sample_block(self, dur, trigger=False):
         """
         Gather a block of sample current readings from device
 
         :param dur: duration (in seconds) of collection
         :returns: list of float sample values in mA
         """
-        # 115200 bps is about 1152 Bps or 576 samples/sec
-        return list(take_n(self.sample(), int(dur * 576)))
+        # measured ~ 1180 samples/sec from BL1
+        return list(take_n(self.sample(trigger), int(dur * 1180)))
 
     def reset(self):
         """Reset the BattLab-One device"""
