@@ -24,7 +24,7 @@ class App:
         self.samples = None
         self.to_ms = 100
         self.block_size = 250
-        self.data = [0.0] * self.block_size
+        self.data = []
 
         self.fig, self.axes = plt.subplots()
         self.x = [i for i in range(self.block_size)]
@@ -56,7 +56,7 @@ class App:
         self.window["Stop"].update(disabled=False)
 
         self.axes.set_xlim(0, self.block_size)
-        self.data = [0.0] * self.block_size
+        self.data = []
         plt.title("")
         plt.draw()
 
@@ -65,7 +65,6 @@ class App:
         self.bl1.voltage = values["voltage"][0]
 
         self.trigger = values["trigger"]
-        print("sample: ", self.trigger)
         self.samples = self.bl1.sample(self.trigger)
 
         self.animation.resume()
@@ -75,24 +74,17 @@ class App:
     def stop(self, *_):
         self.samples = None
         self.to_ms = 100
+
+        self.animation.pause()
+
         self.bl1.reset()
-        del self.data[0:self.block_size]
-        results = ("{} samples\navg: {:.3f} max: {:.3f} " +
-                   "min: {:.3f}").format(len(self.data),
-                                         sum(self.data) / len(self.data),
-                                         max(self.data),
-                                         min(self.data))
 
         self.window["Sample"].update(disabled=False)
         self.window["Stop"].update(disabled=True)
 
-        self.animation.pause()
-
         if self.trigger:
             self.data.reverse()
             num_zeros = len(self.data) - self.data.index(0.0)
-            print(min(self.data), max(self.data))
-            print(len(self.data), num_zeros)
             self.data.reverse()
             del self.data[0:num_zeros]
 
@@ -100,7 +92,11 @@ class App:
         self.line.set_xdata([i for i in range(len(self.data))])
         self.axes.set_ylim(ymin=min(self.data), ymax=max(self.data))
         self.line.set_ydata(self.data)
-        plt.title(results)
+        plt.title(("{} samples\navg: {:.3f} max: {:.3f} " +
+                   "min: {:.3f}").format(len(self.data),
+                                         sum(self.data) / len(self.data),
+                                         max(self.data),
+                                         min(self.data)))
         plt.draw()
 
         return True
@@ -109,7 +105,7 @@ class App:
         if self.samples:
             try:
                 self.data.append(next(self.samples))
-            except StopIteration as exc:
+            except StopIteration as _:
                 self.samples = None
                 self.window["Stop"].click()
 
@@ -119,10 +115,12 @@ class App:
         self.fig_blit = draw_figure(canvas, self.fig)
 
         def animate(*_):
-            self.line.set_xdata(self.x)
-            self.line.set_ydata(self.data[-self.block_size:])
-            self.axes.set_ylim(min(self.data[-self.block_size:]),
-                               max(self.data[-self.block_size:]) + 0.1)
+            if len(self.data) >= self.block_size:
+                self.line.set_xdata(self.x)
+                self.line.set_ydata(self.data[-self.block_size:])
+                self.axes.set_ylim(min(self.data[-self.block_size:]),
+                                   max(self.data[-self.block_size:]) + 0.1)
+
             return self.line,
 
         self.animation = animation.FuncAnimation(self.fig, animate, interval=20,
