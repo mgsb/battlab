@@ -59,7 +59,7 @@ def main():
 
     sleep(args.wait)
 
-    data = bl1.sample_block(args.duration, args.trigger)
+    data = bl1.take_n(bl1.sample(args.trigger), args.duration * bl1.SPS)
 
     bl1.voltage = 0
 

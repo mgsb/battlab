@@ -53,6 +53,9 @@ class BattLabOne:
 
     VOLTAGES = [1.2, 1.5, 2.4, 3.0, 3.2, 3.6, 3.7, 4.2, 4.5]
 
+    SPS = 1180
+    """Samples Per Second - measured data rate from BL1"""
+
     VSettings = namedtuple("VSettings", "cal, offset, cmd")
 
     def __init__(self, port=None, voltage=None, current_range=CurrentRange.HIGH,
@@ -135,7 +138,8 @@ class BattLabOne:
             sense_scale = 99
             offset = self.cal_offset[self._voltage].offset
 
-        self._run_cmd(self.FWCmd.SAMPLE_TRIGGER if trigger else self.FWCmd.SAMPLE, 0)
+        self._run_cmd(self.FWCmd.SAMPLE_TRIGGER if trigger else
+                      self.FWCmd.SAMPLE, 0)
         ready = not trigger
         sleep(0.25)
 
@@ -151,15 +155,15 @@ class BattLabOne:
                 raw = (data[0] << 8) | data[1]
                 yield (0.0025 * raw) / sense_scale - offset
 
-    def sample_block(self, dur, trigger=False):
+    def take_n(self, gen, num_samples):
         """
         Gather a block of sample current readings from device
 
-        :param dur: duration (in seconds) of collection
+        :param gen: generator returned from BattLabOne.sample()
+        :param num_samples: number of samples to acquire
         :returns: list of float sample values in mA
         """
-        # measured ~ 1180 samples/sec from BL1
-        return list(take_n(self.sample(trigger), int(dur * 1180)))
+        return list(take_n(gen, num_samples))
 
     def reset(self):
         """Reset the BattLab-One device"""

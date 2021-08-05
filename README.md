@@ -33,7 +33,7 @@ def main():
 
     bl1.voltage = 3.0
 
-    data = bl1.sample_block(1.5)
+    data = bl1.take_n(bl1.sample(), 100)
 
     bl1.voltage = 0
 
