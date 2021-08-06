@@ -19,6 +19,8 @@ def main():
                       help="duration of measurement (seconds)")
     argp.add_argument("-g", "--graph", action="store_true",
                       help="graph (plot) the sample data")
+    argp.add_argument("--leave-on", default=False, action="store_true",
+                      help="leave voltage on when exiting program"),
     argp.add_argument("--no-reset", default=False, action="store_true",
                       help="do not reset device")
     argp.add_argument("-o", "--output", default=None,
@@ -61,7 +63,8 @@ def main():
 
     data = bl1.take_n(bl1.sample(args.trigger), args.duration * bl1.SPS)
 
-    bl1.voltage = 0
+    if not args.leave_on:
+        bl1.voltage = 0
 
     stats = "max: {:.2f}, min: {:.2f}, avg: {:.2f}".format(max(data), min(data),
                                                            sum(data) / len(data))
