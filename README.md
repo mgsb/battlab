@@ -2,9 +2,9 @@
 
 The `battlab` module provides a Python 3 class for interacting with a [BattLab-One instrument](https://bluebird-labs.com/).
 
-* Encapsulates serial protocol with instrument firmware
-* Configure operating parameters
-* Read samples of current readings
+* Encapsulates instrument firmware serial protocol
+* Configure operating parameters via properties
+* Read 1 or N samples of current readings
 * Usable from CLI and GUI applications
 * Cross-platform
 
@@ -15,6 +15,8 @@ Use `help(BattLabOne)` for docs.
 A command-line utility is provided in `bl1cli.py`. Invoke using `python3 -m battlab` or `bl1cli` after installing via `setup.py` or `pip3 install`.
 
 ## Examples
+
+### Basic
 
 From `examples/basic/main.py`:
 
@@ -45,6 +47,13 @@ if __name__ == "__main__":
 
 ```
 
+### Triggered
+
+`examples/triggered/main.py` provides and example of triggered sampling.
+
+
+### CLI
+
 CLI utility:
 
 ``` bash
@@ -70,11 +79,10 @@ optional arguments:
   -w WAIT, --wait WAIT  wait seconds before sampling
 ```
 
+### GUI
+
 See `examples/gui` for an example that uses [PySimpleGUI](https://pysimplegui.readthedocs.io/en/latest) and [matplotlib](https://matplotlib.org) for a simple GUI application including plotting.
 
 ![BattLab-One GUI Example](bl1gui.png)
 
 ## TODO
-
-* Add support for triggered mode
-* Add support for setting averaging
