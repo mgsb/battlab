@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
 ### Triggered
 
-`examples/triggered/main.py` provides and example of triggered sampling.
+`examples/triggered/main.py` provides an example of triggered sampling.
 
 
 ### CLI
@@ -57,9 +57,9 @@ if __name__ == "__main__":
 CLI utility:
 
 ``` bash
-linux% bl1cli --help
-usage: bl1cli [-h] [-c {high,low}] [-d DURATION] [-g] [--no-reset] [-o OUTPUT] [-p PORT]
-              [-v VOLTAGE] [-w WAIT]
+python3 bl1cli.py --help
+usage: bl1cli.py [-h] [-c {high,low}] [-d DURATION] [-g] [--leave-on]
+                 [--no-reset] [-o OUTPUT] [-p PORT] [-t] [-v VOLTAGE] [-w WAIT]
 
 Measure current with BattLab-One
 
@@ -70,10 +70,12 @@ optional arguments:
   -d DURATION, --duration DURATION
                         duration of measurement (seconds)
   -g, --graph           graph (plot) the sample data
+  --leave-on            leave voltage on when exiting program
   --no-reset            do not reset device
   -o OUTPUT, --output OUTPUT
                         output file to store sample data in
   -p PORT, --port PORT  serial (com) port to use
+  -t, --trigger         use triggered sampling
   -v VOLTAGE, --voltage VOLTAGE
                         voltage for testing
   -w WAIT, --wait WAIT  wait seconds before sampling
@@ -86,3 +88,5 @@ See `examples/gui` for an example that uses [PySimpleGUI](https://pysimplegui.re
 ![BattLab-One GUI Example](bl1gui.png)
 
 ## TODO
+
+* Test on Windows and macOS
