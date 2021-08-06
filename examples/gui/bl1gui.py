@@ -88,6 +88,9 @@ class App:
             self.data.reverse()
             del self.data[0:num_zeros]
 
+        if not self.data:
+            return True
+
         self.axes.set_xlim(0, len(self.data))
         self.line.set_xdata([i for i in range(len(self.data))])
         self.axes.set_ylim(ymin=min(self.data), ymax=max(self.data))
