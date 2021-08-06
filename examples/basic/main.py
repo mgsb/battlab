@@ -1,4 +1,7 @@
+import sys
+
 from battlab import BattLabOne
+
 
 def main():
     """Example usage of BattLabOne class"""
